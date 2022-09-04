@@ -70,7 +70,7 @@ const updateCustomer = (req,res) => {
    const query = "UPDATE Customer SET name=?,address=?,tel=? WHERE id=?";
 
    connection.query(query, [name, address, tel, id], (err, result) => {
-      if (result.affectedRows > 0) {
+      if (result.changedRows > 0) {
          res.send('customer updated');
       } else {
          res.send('user not found!');
@@ -79,6 +79,36 @@ const updateCustomer = (req,res) => {
    });
 }
 
+const deleteCustomer = (req, res) => {
+   const id = req.params.id;
+   const query = "DELETE FROM Customer WHERE id=? ";
+   connection.query(query, id, (err, result) => {
+      if (result.affectedRows > 0) {
+         res.send('customer deleted!');
+      } else {
+         res.send('no user found!');
+      }
+      if (err) {
+         res.status(500).send(err.sqlMessage);
+      }
+   });
+}
 
+const searchCustomer = (req,res) =>{
+   const id = req.params.id;
+   const query = "SELECT * FROM Customer WHERE id=?";
+   connection.query(query, id, (error, result) => {
+      const exist = result.length;
+      if (exist) {
+         res.send(result);
+      } else {
+         res.send('customer not found!');
+      }
 
-module.exports = {getAllCustomers, saveCustomer};
+      if (error) {
+         res.status(500).send(error.sqlMessage);
+      }
+   });
+}
+
+module.exports = {getAllCustomers, saveCustomer, updateCustomer, deleteCustomer, searchCustomer};
