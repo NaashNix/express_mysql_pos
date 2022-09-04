@@ -61,4 +61,24 @@ const saveCustomer = (req, res) => {
 };
 
 
+const updateCustomer = (req,res) => {
+   const id = req.body.id;
+   const name = req.body.name;
+   const address = req.body.address;
+   const tel = req.body.tel;
+
+   const query = "UPDATE Customer SET name=?,address=?,tel=? WHERE id=?";
+
+   connection.query(query, [name, address, tel, id], (err, result) => {
+      if (result.affectedRows > 0) {
+         res.send('customer updated');
+      } else {
+         res.send('user not found!');
+      }
+
+   });
+}
+
+
+
 module.exports = {getAllCustomers, saveCustomer};
