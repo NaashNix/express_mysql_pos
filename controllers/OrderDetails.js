@@ -41,10 +41,17 @@ connection.connect((err) => {
 
 const getAllOrderDetails =  (orderID) =>{
    const query = 'SELECT * FROM OrderDetails WHERE orderID = ?';
+   const orderItems = [];
    connection.query(query, [orderID], (error, result) => {
+
+      
          if ( !error ){
-            console.log('typeOF : '+typeof result);
-            return result;
+            for (const oDetails of result) {
+               orderItems.push(JSON.stringify(oDetails));
+               console.log("oDetails@51"+oDetails);
+            }
+            return orderItems;
+
          }else {
             console.log(error.sqlMessage);
             return null;

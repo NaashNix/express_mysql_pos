@@ -34,17 +34,17 @@ const getAllOrders = (req,res) => {
    connection.query(query, (error, result) => {
       let orders = [];
       for (const order of result){
-         const orderId = order.orderID;
+         const orderID = order.orderID;
          const date = order.date.toLocaleDateString();
          const customerId = order.customerId;
          const totalPrice = order.totalPrice;
-         const orderDetails = orderDetails.getAllOrderDetails(orderID);
+         const orderDetailsObj = orderDetails.getAllOrderDetails(orderID);
          orders.push({
-            orderId: orderId,
+            orderID: orderID,
             date: date,
             customerId: customerId, 
             totalPrice: totalPrice,
-            orderDetails: orderDetails,
+            orderDetails: orderDetailsObj,
          });
       }
       if (orders.length > 0) {
@@ -91,20 +91,23 @@ const saveOrder = (req,res) => {
 
 const deleteOrder = (req,res) => {
    const orderID = req.params.orderID;
-   const query = "DELETE FROM Orders WHERE orderID=?";
-   connection.query(query,[orderID], (error, result) => {
-      if (!error){
-         let OdResult = orderDetails.deleteOrderDetails(orderID);
-         if (odResult){
-            res.send('deleted');
+   let OdResult = orderDetails.deleteOrderDetails(orderID);
+
+   if (!OdResult) {
+      const query = "DELETE FROM Orders WHERE orderID=?";
+      connection.query(query, [orderID], (error, result) => {
+         if (!error){
+            res.send('order deleted!');
          }else {
-            res.send('error in orderDetails');
+            res.send(error.sqlMessage);
          }
-      }else {
-         res.send(error.sqlMessage)
-      }
-   });
+      });
+
+   } else {
+      res.send('error in orderDetails');
+   }
 
 }
 
-module.exports = {getAllOrders, saveOrder, deleteOrder};
+
+module.exports = { getAllOrders, saveOrder, deleteOrder };
