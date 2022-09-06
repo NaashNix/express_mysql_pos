@@ -43,9 +43,38 @@ const getAllOrderDetails =  (orderID) =>{
    const query = 'SELECT * FROM OrderDetails WHERE orderID = ?';
    connection.query(query, [orderID], (error, result) => {
          if ( !error ){
-            
+            console.log('typeOF : '+typeof result);
+            return result;
+         }else {
+            console.log(error.sqlMessage);
+            return null;
          }
    });
 }
 
-module.exports = {getAllOrderDetails}
+const deleteOrderDetails = (orderID) => {
+   const query = "DELETE FROM OrderDetails WHERE orderID=?";
+   connection.query(query, [orderID], (error, result) => {
+      if (result.affectedRows > 0) {
+         return true;
+      } else if (result.affectedRows == 0){
+         return false;
+      }else {
+         console.log(error);
+         return false;
+      }
+   });
+}
+
+const saveOrderDetails = (odID,orderID,itemCode, qty, unitPrice, itemTotal) => {
+   const query = "INSERT INTO OrderDetails(odID, orderID, itemCode,qty,unitPrice,itemTotal) VALUES(?,?,?,?,?,?)";
+   connection.query(query, [odID, orderID, itemCode, qty, unitPrice, itemTotal], (error) => {
+      if (!error) {
+         return true;
+      } else {
+         return false;
+      }
+   })
+}
+
+module.exports = {getAllOrderDetails, deleteOrderDetails,saveOrderDetails}

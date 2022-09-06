@@ -13,7 +13,6 @@ connection.connect((err) => {
          "date DATE," + 
          "customerId VARCHAR(255)," +
          "totalPrice double," +
-         "orderDetails VARCHAR(255)," +
          "CONSTRAINT PRIMARY KEY (orderId)," +
          "CONSTRAINT FOREIGN KEY (customerId) REFERENCES Customer(id))";
 
@@ -39,7 +38,7 @@ const getAllOrders = (req,res) => {
          const date = order.date.toLocaleDateString();
          const customerId = order.customerId;
          const totalPrice = order.totalPrice;
-         const orderDetails = JSON.parse(order.orderDetails);
+         const orderDetails = orderDetails.getAllOrderDetails(orderID);
          orders.push({
             orderId: orderId,
             date: date,
@@ -57,8 +56,55 @@ const getAllOrders = (req,res) => {
       }
    });
 
-   orderDetails.getAllOrderDetails("OO1", "I001");
+}
+
+
+const saveOrder = (req,res) => {
+   const orderID = req.body.orderID;
+   const date = req.body.date;
+   const customerId = req.body.customerId;
+   const totalPrice = req.body.totalPrice;
+   const orderDetailsObj = req.body.orderDetails;
+
+   const query = "INSERT INTO Orders(orderID,date,customerId,totalPrice) VALUES(?,?,?,?)";
+   connection.query(
+      query,[orderID, date, customerId, totalPrice],(err) => {
+         if (!err) {
+            for (const orderDetail of orderDetailsObj){
+               orderDetails.saveOrderDetails(
+                  orderDetail.odID,
+                  orderID,
+                  orderDetail.itemCode, 
+                  orderDetail.qty,
+                  orderDetail.unitPrice,
+                  orderDetail.itemTotal
+                  );
+            }
+
+            res.send('order saved!');
+
+         } else {
+            res.status(500).send(err.sqlMessage);
+         }
+      });
+}
+
+const deleteOrder = (req,res) => {
+   const orderID = req.params.orderID;
+   const query = "DELETE FROM Orders WHERE orderID=?";
+   connection.query(query,[orderID], (error, result) => {
+      if (!error){
+         let OdResult = orderDetails.deleteOrderDetails(orderID);
+         if (odResult){
+            res.send('deleted');
+         }else {
+            res.send('error in orderDetails');
+         }
+      }else {
+         res.send(error.sqlMessage)
+      }
+   });
 
 }
 
-module.exports = {getAllOrders};
+module.exports = {getAllOrders, saveOrder, deleteOrder};
